@@ -1,5 +1,6 @@
 ﻿using IncidentMapAPI.Application.Interfaces.Repositories;
 using IncidentMapAPI.Domain.Models;
+using IncidentMapAPI.Domain.Models.DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -30,7 +31,7 @@ namespace IncidentMapAPI.Controllers
         }
 
         [HttpPost("promotion-by-location")]
-        public async Task<IActionResult> GetPromotionsByLocation(Promotion promotion)
+        public async Task<IActionResult> GetPromotionsByLocation(PromotionDTO promotion)
         {
             var loadPromotions = await _promotion.GetFilteredPromotions(promotion);
             if (loadPromotions == null)

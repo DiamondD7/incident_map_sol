@@ -1,5 +1,6 @@
 ﻿using IncidentMapAPI.Application.Interfaces.Repositories;
 using IncidentMapAPI.Domain.Models;
+using IncidentMapAPI.Domain.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace IncidentMapAPI.Infrastructure.Persistence.Repositories
@@ -17,13 +18,19 @@ namespace IncidentMapAPI.Infrastructure.Persistence.Repositories
             return await _context.PromotionTable.ToListAsync();
         }
 
-        public async Task<List<Promotion>> GetFilteredPromotions(Promotion promotion)
+        public async Task<List<Promotion>> GetFilteredPromotions(PromotionDTO promotion)
         {
             var cafes = await _context.PromotionTable.ToListAsync();
 
             if (!string.IsNullOrEmpty(promotion.ShopType))
             {
                 cafes = cafes.Where(c => c.ShopType == promotion.ShopType).ToList();
+            }
+
+            if(promotion.DaysUntilExpiry != 0)
+            {
+                var expiryDate = DateTime.Now.AddDays(promotion.DaysUntilExpiry);
+                cafes = cafes.Where(c => c.Expiry != null && c.Expiry <= expiryDate).ToList();
             }
 
             if(promotion.Latitude != 0 && promotion.Longitude != 0)
