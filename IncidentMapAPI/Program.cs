@@ -1,4 +1,5 @@
 
+using Azure.Identity;
 using IncidentMapAPI.Application.Interfaces.Repositories;
 using IncidentMapAPI.Infrastructure.Persistence;
 using IncidentMapAPI.Infrastructure.Persistence.Repositories;
@@ -26,8 +27,18 @@ namespace IncidentMapAPI
             });
 
 
+            var keyVaultUri = new Uri("https://hotspots-kv.vault.azure.net/");
+
+            builder.Configuration.AddAzureKeyVault(
+                keyVaultUri,
+                new DefaultAzureCredential()
+            );
+
+            var connString = builder.Configuration["DbConnectionString"];
+
+
             builder.Services.AddControllers();
-            builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+            builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connString));
 
             builder.Services.AddScoped<IIncidentRepository, IncidentRepository>();
             builder.Services.AddScoped<IPromotionRepository, PromotionRepository>();
@@ -43,8 +54,9 @@ namespace IncidentMapAPI
                 app.MapOpenApi();
             }
 
-            app.UseCors("AllowSpecificOrigin");
             app.UseHttpsRedirection();
+            app.UseRouting();
+            app.UseCors("AllowSpecificOrigin");
             app.UseAuthorization();
 
 
