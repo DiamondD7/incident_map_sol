@@ -19,7 +19,7 @@ namespace IncidentMapAPI
                 options.AddPolicy("AllowSpecificOrigin",
                     policy =>
                     {
-                        policy.WithOrigins("https://dealmap.net") // Allow your frontend's URL
+                        policy.WithOrigins("https://hotspotsnz.com") // Allow your frontend's URL
                               .AllowCredentials()  // Allow credentials (cookies, authorization headers)
                               .AllowAnyHeader()    // Allow any headers
                               .AllowAnyMethod();   // Allow any HTTP method

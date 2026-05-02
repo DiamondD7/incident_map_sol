@@ -15,7 +15,8 @@ namespace IncidentMapAPI.Infrastructure.Persistence.Repositories
 
         public async Task<List<Promotion>> GetPromotionsAsync()
         {
-            return await _context.PromotionTable.ToListAsync();
+            return await _context.PromotionTable.Where(x => (x.Expiry > DateTime.Now || x.Expiry == null) && 
+            x.IsActive == true && (x.StartedAt == null || x.StartedAt <= DateTime.Now)).ToListAsync();
         }
 
         public async Task<List<Promotion>> GetFilteredPromotions(PromotionDTO promotion)
@@ -24,19 +25,19 @@ namespace IncidentMapAPI.Infrastructure.Persistence.Repositories
 
             if (!string.IsNullOrEmpty(promotion.ShopType))
             {
-                cafes = cafes.Where(c => c.ShopType == promotion.ShopType).ToList();
+                cafes = cafes.Where(c => c.ShopType == promotion.ShopType && c.IsActive == true && (c.StartedAt == null || c.StartedAt <= DateTime.Now)).ToList();
             }
 
             if(promotion.DaysUntilExpiry != 0)
             {
                 var expiryDate = DateTime.Now.AddDays(promotion.DaysUntilExpiry);
-                cafes = cafes.Where(c => c.Expiry != null && c.Expiry <= expiryDate).ToList();
+                cafes = cafes.Where(c => c.Expiry != null && c.Expiry <= expiryDate && c.IsActive == true).ToList();
             }
 
             if(promotion.Latitude != 0 && promotion.Longitude != 0)
             {
                 return cafes
-                .Where(c => CalculateDistance(promotion.Latitude, promotion.Longitude, c.Latitude, c.Longitude) < 5)
+                .Where(c => CalculateDistance(promotion.Latitude, promotion.Longitude, c.Latitude, c.Longitude) < 5 && c.IsActive == true && (c.StartedAt == null || c.StartedAt <= DateTime.Now))
                 .ToList();
             }
 
@@ -60,6 +61,8 @@ namespace IncidentMapAPI.Infrastructure.Persistence.Repositories
                 Title = promotion.Title,
                 Description = promotion.Description,
                 Link = promotion.Link,
+                Address = promotion.Address,
+                StartedAt = promotion.StartedAt,
                 Expiry = promotion.Expiry,
                 CreatedAt = DateTime.Now,
             };
