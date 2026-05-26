@@ -64,6 +64,7 @@ namespace IncidentMapAPI.Infrastructure.Persistence.Repositories
                 Address = promotion.Address,
                 StartedAt = promotion.StartedAt,
                 Expiry = promotion.Expiry,
+                DiscountPercent = promotion.DiscountPercent,
                 CreatedAt = DateTime.Now,
             };
 

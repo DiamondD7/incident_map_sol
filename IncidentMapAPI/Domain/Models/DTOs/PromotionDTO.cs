@@ -11,6 +11,7 @@
         public string? Description { get; set; }
         public string? Link { get; set; } //link to website
         public string? Address { get; set; }
+        public int? DiscountPercent { get; set; }
         public int DaysUntilExpiry { get; set; } = 0;
         public DateTime? Expiry { get; set; }
         public DateTime? StartedAt { get; set; }

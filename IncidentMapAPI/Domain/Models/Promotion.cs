@@ -14,6 +14,7 @@ namespace IncidentMapAPI.Domain.Models
         public string? Description { get; set; }
         public string? Link { get; set; } //link to website
         public string? Address { get; set; }
+        public int? DiscountPercent { get; set; }
         public DateTime? StartedAt { get; set; } //date, the promotion starts
         public DateTime? Expiry { get; set; }
         public DateTime CreatedAt { get; set; }
