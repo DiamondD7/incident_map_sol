@@ -16,5 +16,7 @@
         public DateTime? Expiry { get; set; }
         public DateTime? StartedAt { get; set; }
         public bool? IsActive { get; set; } = true;
+        public bool? HasPromotion { get; set; } = true;
+        public bool? IsAnAestheticShop { get; set; } = false;
     }
 }

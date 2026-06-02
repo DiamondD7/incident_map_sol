@@ -19,5 +19,8 @@ namespace IncidentMapAPI.Domain.Models
         public DateTime? Expiry { get; set; }
         public DateTime CreatedAt { get; set; }
         public bool? IsActive { get; set; } = true; //manually set to false when promotion is no longer active.
+        public bool? HasPromotion { get; set; } = true;
+        public bool? IsAnAestheticShop { get; set; } = false;
+
     }
 }
