@@ -34,6 +34,11 @@ namespace IncidentMapAPI.Infrastructure.Persistence.Repositories
                 cafes = cafes.Where(c => c.Expiry != null && c.Expiry <= expiryDate && c.IsActive == true).ToList();
             }
 
+            if(promotion.IsAnAestheticShop != null)
+            {
+                cafes = cafes.Where(c => c.IsAnAestheticShop == promotion.IsAnAestheticShop && c.IsActive == true).ToList();
+            }
+
             if(promotion.Latitude != 0 && promotion.Longitude != 0)
             {
                 return cafes

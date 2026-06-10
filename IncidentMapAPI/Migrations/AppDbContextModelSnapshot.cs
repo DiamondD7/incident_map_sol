@@ -42,7 +42,7 @@ namespace IncidentMapAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("IncidentTable");
+                    b.ToTable("IncidentTable", (string)null);
                 });
 
             modelBuilder.Entity("IncidentMapAPI.Domain.Models.Promotion", b =>
@@ -98,7 +98,7 @@ namespace IncidentMapAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PromotionTable");
+                    b.ToTable("PromotionTable", (string)null);
                 });
 #pragma warning restore 612, 618
         }
