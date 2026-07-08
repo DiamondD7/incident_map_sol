@@ -46,17 +46,37 @@ namespace IncidentMapAPI.Controllers
         {
             if (promotion == null)
             {
-                return BadRequest(new { status = false, message = "Bad request, incident may be null", code = 400 });
+                return BadRequest(new { status = false, message = "Bad request, promotion may be null", code = 400 });
             }
 
             var newPromotion = await _promotion.AddIncidentAsync(promotion);
 
             if (newPromotion == false)
             {
+                return BadRequest(new { status = false, message = "Bad request, something was wrong when adding a promotion", code = 400 });
+            }
+
+            return Ok(new { status = true, message = "Successfully added new promotion", code = 200 });
+        }
+
+        [HttpPost("new-deal")]
+        public async Task<IActionResult> AddDeals([FromBody] Deals deal)
+        {
+            if (deal == null)
+            {
+                return BadRequest(new { status = false, message = "Bad request, deal may be null", code = 400 });
+            }
+
+            var newDeal = await _promotion.AddNewDeals(deal);
+
+            if (newDeal == false)
+            {
                 return BadRequest(new { status = false, message = "Bad request, something was wrong when adding an incident", code = 400 });
             }
 
-            return Ok(new { status = true, message = "Successfully added new incident", code = 200 });
+            return Ok(new { status = true, message = "Successfully added new deal", code = 200 });
         }
+
+
     }
 }

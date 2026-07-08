@@ -15,13 +15,13 @@ namespace IncidentMapAPI.Infrastructure.Persistence.Repositories
 
         public async Task<List<Promotion>> GetPromotionsAsync()
         {
-            return await _context.PromotionTable.Where(x => (x.Expiry > DateTime.Now || x.Expiry == null) && 
+            return await _context.PromotionTable.Include(p => p.Images).Include(c => c.Deals).Where(x => (x.Expiry > DateTime.Now || x.Expiry == null) && 
             x.IsActive == true && (x.StartedAt == null || x.StartedAt <= DateTime.Now)).ToListAsync();
         }
 
         public async Task<List<Promotion>> GetFilteredPromotions(PromotionDTO promotion)
         {
-            var cafes = await _context.PromotionTable.ToListAsync();
+            var cafes = await _context.PromotionTable.Include(p => p.Images).Include(c => c.Deals).ToListAsync();
 
             if (!string.IsNullOrEmpty(promotion.ShopType))
             {
@@ -49,6 +49,31 @@ namespace IncidentMapAPI.Infrastructure.Persistence.Repositories
             return cafes;
         }
 
+        public async Task<bool> AddNewDeals(Deals deals)
+        {
+            if (deals == null)
+            {
+                return false;
+            }
+
+
+            var newDeals = new Deals
+            {
+                PromotionId = deals.PromotionId,
+                DealTitle = deals.DealTitle,
+                DealDescription = deals.DealDescription,
+                DiscountPercent = deals.DiscountPercent,
+                DealStart = deals.DealStart,
+                DealEnd = deals.DealEnd,
+                CreatedAt = deals.CreatedAt ?? DateTime.Now,
+            };
+
+            _context.DealsTable.Add(newDeals);
+            _context.SaveChanges();
+
+            return true;
+        }
+
 
         public async Task<bool> AddIncidentAsync(Promotion promotion)
         {
@@ -73,6 +98,21 @@ namespace IncidentMapAPI.Infrastructure.Persistence.Repositories
                 HasPromotion = promotion.HasPromotion,
                 IsAnAestheticShop = promotion.IsAnAestheticShop,
                 CreatedAt = DateTime.Now,
+                Images = promotion.Images?.Select(img => new PromotionImages
+                {
+                    ImageTitle = img.ImageTitle,
+                    ImageUrl = img.ImageUrl,
+                    CreatedAt = img.CreatedAt ?? DateTime.Now
+                }).ToList(),
+                Deals = promotion.Deals?.Select(deal => new Deals
+                {
+                    DealTitle = deal.DealTitle,
+                    DealDescription = deal.DealDescription,
+                    DiscountPercent = deal.DiscountPercent,
+                    DealStart = deal.DealStart,
+                    DealEnd = deal.DealEnd,
+                    CreatedAt = deal.CreatedAt ?? DateTime.Now
+                }).ToList()
             };
 
             _context.PromotionTable.Add(newPromotion);

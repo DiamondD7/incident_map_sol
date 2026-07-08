@@ -18,5 +18,6 @@
         public bool? IsActive { get; set; } = true;
         public bool? HasPromotion { get; set; } = true;
         public bool? IsAnAestheticShop { get; set; } = false;
+        public ICollection<PromotionImages>? Images { get; set; } = new List<PromotionImages>();
     }
 }

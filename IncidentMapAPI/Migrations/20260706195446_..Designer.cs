@@ -4,6 +4,7 @@ using IncidentMapAPI.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IncidentMapAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260706195446_.")]
+    partial class _
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,40 +24,6 @@ namespace IncidentMapAPI.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("IncidentMapAPI.Domain.Models.Deals", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DealDescription")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("DealEnd")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DealStart")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DealTitle")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("DiscountPercent")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("PromotionId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PromotionId");
-
-                    b.ToTable("DealsTable");
-                });
 
             modelBuilder.Entity("IncidentMapAPI.Domain.Models.Incident", b =>
                 {
@@ -144,9 +113,6 @@ namespace IncidentMapAPI.Migrations
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("ImageTitle")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("ImageUrl")
                         .HasColumnType("nvarchar(max)");
 
@@ -157,16 +123,7 @@ namespace IncidentMapAPI.Migrations
 
                     b.HasIndex("PromotionId");
 
-                    b.ToTable("PromotionImagesTable");
-                });
-
-            modelBuilder.Entity("IncidentMapAPI.Domain.Models.Deals", b =>
-                {
-                    b.HasOne("IncidentMapAPI.Domain.Models.Promotion", null)
-                        .WithMany("Deals")
-                        .HasForeignKey("PromotionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.ToTable("PromotionImages");
                 });
 
             modelBuilder.Entity("IncidentMapAPI.Domain.Models.PromotionImages", b =>
@@ -180,8 +137,6 @@ namespace IncidentMapAPI.Migrations
 
             modelBuilder.Entity("IncidentMapAPI.Domain.Models.Promotion", b =>
                 {
-                    b.Navigation("Deals");
-
                     b.Navigation("Images");
                 });
 #pragma warning restore 612, 618

@@ -19,7 +19,7 @@ namespace IncidentMapAPI
                 options.AddPolicy("AllowSpecificOrigin",
                     policy =>
                     {
-                        policy.WithOrigins("https://hotspotsnz.com") // Allow your frontend's URL
+                        policy.WithOrigins("http://localhost:5173") // Allow your frontend's URL
                               .AllowCredentials()  // Allow credentials (cookies, authorization headers)
                               .AllowAnyHeader()    // Allow any headers
                               .AllowAnyMethod();   // Allow any HTTP method
@@ -54,6 +54,7 @@ namespace IncidentMapAPI
                 app.MapOpenApi();
             }
 
+            app.UseStaticFiles();
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseCors("AllowSpecificOrigin");

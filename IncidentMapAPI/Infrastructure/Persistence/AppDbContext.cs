@@ -11,6 +11,9 @@ namespace IncidentMapAPI.Infrastructure.Persistence
         }
 
         public DbSet<Incident>IncidentTable { get; set; }
-        public DbSet<Promotion>PromotionTable { get; set; }
+        public DbSet<Promotion> PromotionTable { get; set; }
+
+        public DbSet<PromotionImages> PromotionImagesTable { get; set; }
+        public DbSet<Deals> DealsTable { get; set; }
     }
 }
