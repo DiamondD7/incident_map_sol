@@ -1,4 +1,7 @@
-﻿namespace IncidentMapAPI.Domain.Models.DTOs
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace IncidentMapAPI.Domain.Models.DTOs
 {
     public class PromotionDTO
     {
@@ -20,4 +23,6 @@
         public bool? IsAnAestheticShop { get; set; } = false;
         public ICollection<PromotionImages>? Images { get; set; } = new List<PromotionImages>();
     }
+
+    
 }

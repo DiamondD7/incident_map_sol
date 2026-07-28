@@ -7,8 +7,10 @@ namespace IncidentMapAPI.Application.Interfaces.Repositories
     {
         Task<List<Promotion>> GetPromotionsAsync();
         Task<List<Promotion>> GetFilteredPromotions(PromotionDTO promotion);
+        Task<List<Promotion>> GetAvailablePromotions();
         Task<bool> AddIncidentAsync(Promotion promotion);
         Task<bool> AddNewDeals(Deals deals);
         double CalculateDistance(double lat1, double lon1, double lat2, double lon2);
+        bool IsActiveTime(Deals d, TimeSpan currentTime);
     }
 }

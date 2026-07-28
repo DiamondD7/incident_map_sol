@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace IncidentMapAPI.Domain.Models
 {
+
     public class Promotion
     {
         [Key]
@@ -49,6 +50,10 @@ namespace IncidentMapAPI.Domain.Models
         public int? DiscountPercent { get; set; }
         public DateTime? DealStart { get; set; }
         public DateTime? DealEnd { get; set; }
+        public TimeSpan? StartTime { get; set; }
+        public TimeSpan? EndTime { get; set; }
+        public List<System.DayOfWeek>? ValidDays { get; set; }
+
         public DateTime? CreatedAt { get; set; }
     }
 

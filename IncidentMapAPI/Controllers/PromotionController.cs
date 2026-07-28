@@ -30,6 +30,20 @@ namespace IncidentMapAPI.Controllers
             return Ok(new { message = "Successful Request", status = true, code = 200, data = loadPromotions });
         }
 
+        [HttpGet("active-deals")]
+        public async Task<IActionResult> GetActiveDeals()
+        {
+            var activeDeals = await _promotion.GetAvailablePromotions();
+
+            if (activeDeals == null)
+            {
+                return NotFound(new { message = "Something went wrong in fetching active deals", status = false, code = 404 });
+            }
+
+            return Ok(new { message = "Successful Request", status = true, code = 200, data = activeDeals });
+        }
+
+        //this is not only for location. idk why i put location there.
         [HttpPost("promotion-by-location")]
         public async Task<IActionResult> GetPromotionsByLocation(PromotionDTO promotion)
         {

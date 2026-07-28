@@ -49,6 +49,20 @@ namespace IncidentMapAPI.Infrastructure.Persistence.Repositories
             return cafes;
         }
 
+        public async Task<List<Promotion>> GetAvailablePromotions()
+        {
+            var nowUtc = DateTime.UtcNow;
+
+            var nzTimeZone = TimeZoneInfo.FindSystemTimeZoneById("New Zealand Standard Time");
+            var nowNz = TimeZoneInfo.ConvertTimeFromUtc(nowUtc, nzTimeZone);
+
+            var promotions = await _context.PromotionTable.Include(o => o.Images).Include(o => o.Deals).ToListAsync();
+            var activeDeals = promotions.Where(x => x.Deals.Any(d => (d.ValidDays == null || d.ValidDays.Contains(nowNz.DayOfWeek)) && IsActiveTime(d, nowNz.TimeOfDay)))
+                .ToList();
+
+            return activeDeals;
+        }
+
         public async Task<bool> AddNewDeals(Deals deals)
         {
             if (deals == null)
@@ -65,6 +79,9 @@ namespace IncidentMapAPI.Infrastructure.Persistence.Repositories
                 DiscountPercent = deals.DiscountPercent,
                 DealStart = deals.DealStart,
                 DealEnd = deals.DealEnd,
+                StartTime = deals.StartTime,
+                EndTime = deals.EndTime,
+                ValidDays = deals.ValidDays,
                 CreatedAt = deals.CreatedAt ?? DateTime.Now,
             };
 
@@ -133,6 +150,20 @@ namespace IncidentMapAPI.Infrastructure.Persistence.Repositories
 
             var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
             return R * c;
+        }
+
+        public bool IsActiveTime(Deals d, TimeSpan currentTime)
+        {
+            // Normal case: 08:00 - 17:00
+            if (d.StartTime <= d.EndTime)
+            {
+                return currentTime >= d.StartTime &&
+                       currentTime <= d.EndTime;
+            }
+
+            // Overnight case: 17:00 - 02:00
+            return currentTime >= d.StartTime ||
+                   currentTime <= d.EndTime;
         }
     }
 }
