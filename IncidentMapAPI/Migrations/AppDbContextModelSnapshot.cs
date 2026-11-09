@@ -43,6 +43,9 @@ namespace IncidentMapAPI.Migrations
                     b.Property<string>("DealTitle")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("DealType")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int?>("DiscountPercent")
                         .HasColumnType("int");
 

@@ -7,6 +7,7 @@ namespace IncidentMapAPI.Application.Interfaces.Repositories
     {
         Task<List<Promotion>> GetPromotionsAsync();
         Task<List<Promotion>> GetFilteredPromotions(PromotionDTO promotion);
+        Task<List<DecisionPlaceDTO>> GetDecisionPlace(DecisionRequestDTO request);
         Task<List<Promotion>> GetAvailablePromotions();
         Task<bool> AddIncidentAsync(Promotion promotion);
         Task<bool> AddNewDeals(Deals deals);

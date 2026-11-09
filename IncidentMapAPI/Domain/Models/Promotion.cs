@@ -47,13 +47,13 @@ namespace IncidentMapAPI.Domain.Models
         public Guid PromotionId { get; set; }
         public string? DealTitle { get; set; }
         public string? DealDescription { get; set; }
+        public string? DealType { get; set; } //if a deal is  "ealy bird","lunch", "all day" or "dinner"
         public int? DiscountPercent { get; set; }
         public DateTime? DealStart { get; set; }
         public DateTime? DealEnd { get; set; }
         public TimeSpan? StartTime { get; set; }
         public TimeSpan? EndTime { get; set; }
         public List<System.DayOfWeek>? ValidDays { get; set; }
-
         public DateTime? CreatedAt { get; set; }
     }
 

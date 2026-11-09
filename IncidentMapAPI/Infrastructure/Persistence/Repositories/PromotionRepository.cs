@@ -7,6 +7,9 @@ namespace IncidentMapAPI.Infrastructure.Persistence.Repositories
 {
     public class PromotionRepository : IPromotionRepository
     {
+        private const int DEAL_SCORE = 30;
+        private const int AESTHETIC_SCORE = 20;
+        private const int NEARBY_SCORE = 20;
         private readonly AppDbContext _context;
         public PromotionRepository(AppDbContext context)
         {
@@ -28,18 +31,18 @@ namespace IncidentMapAPI.Infrastructure.Persistence.Repositories
                 cafes = cafes.Where(c => c.ShopType == promotion.ShopType && c.IsActive == true && (c.StartedAt == null || c.StartedAt <= DateTime.Now)).ToList();
             }
 
-            if(promotion.DaysUntilExpiry != 0)
+            if (promotion.DaysUntilExpiry != 0)
             {
                 var expiryDate = DateTime.Now.AddDays(promotion.DaysUntilExpiry);
                 cafes = cafes.Where(c => c.Expiry != null && c.Expiry <= expiryDate && c.IsActive == true).ToList();
             }
 
-            if(promotion.IsAnAestheticShop != null)
+            if (promotion.IsAnAestheticShop != null)
             {
                 cafes = cafes.Where(c => c.IsAnAestheticShop == promotion.IsAnAestheticShop && c.IsActive == true).ToList();
             }
 
-            if(promotion.Latitude != 0 && promotion.Longitude != 0)
+            if (promotion.Latitude != 0 && promotion.Longitude != 0)
             {
                 return cafes
                 .Where(c => CalculateDistance(promotion.Latitude, promotion.Longitude, c.Latitude, c.Longitude) < 5 && c.IsActive == true && (c.StartedAt == null || c.StartedAt <= DateTime.Now))
@@ -49,6 +52,27 @@ namespace IncidentMapAPI.Infrastructure.Persistence.Repositories
             return cafes;
         }
 
+
+        public async Task<List<DecisionPlaceDTO>> GetDecisionPlace(DecisionRequestDTO request)
+        {
+            var promotions = await _context.PromotionTable.Include(x => x.Deals).Include(x => x.Images).ToListAsync();
+            var placesFilteredByCategory = promotions.Where(x => x.ShopType == request.Category).ToList();
+            var scorePlaces = placesFilteredByCategory
+                .Select(place => new DecisionPlaceDTO
+                {
+                    Place = place,
+                    Score = CalculateScore(place, request)
+                })
+                .Where(x=>x.Score > 0)
+                .OrderByDescending(x => x.Score)
+                .ToList();
+
+            return scorePlaces;
+            
+        }
+
+
+
         public async Task<List<Promotion>> GetAvailablePromotions()
         {
             var nowUtc = DateTime.UtcNow;
@@ -57,8 +81,39 @@ namespace IncidentMapAPI.Infrastructure.Persistence.Repositories
             var nowNz = TimeZoneInfo.ConvertTimeFromUtc(nowUtc, nzTimeZone);
 
             var promotions = await _context.PromotionTable.Include(o => o.Images).Include(o => o.Deals).ToListAsync();
-            var activeDeals = promotions.Where(x => x.Deals.Any(d => (d.ValidDays == null || d.ValidDays.Contains(nowNz.DayOfWeek)) && IsActiveTime(d, nowNz.TimeOfDay)))
-                .ToList();
+            //var activeDeals = promotions.Where(x => x.Deals.Any(d => (d.ValidDays == null || d.ValidDays.Contains(nowNz.DayOfWeek)) && IsActiveTime(d, nowNz.TimeOfDay)))
+            //    .ToList();
+
+            var activeDeals = promotions
+                .Select(p => new Promotion
+                {
+                    Latitude = p.Latitude,
+                    Longitude = p.Longitude,
+                    ShopName = p.ShopName,
+                    Title = p.Title,
+                    Description = p.Description,
+                    ShopType = p.ShopType,
+                    Link = p.Link,
+                    Address = p.Address,
+                    Deals = p.Deals
+                            .Where(d => (d.ValidDays == null || d.ValidDays.Contains(nowNz.DayOfWeek)) && IsActiveTime(d, nowNz.TimeOfDay)).ToList(),
+                    Images = p.Images
+                })
+                .Where(p => p.Deals.Any())
+                 .OrderBy(p =>
+                 {
+                     var deal = p.Deals.First();
+
+                     var endDateTime = nowNz.Date.Add(deal.EndTime ?? TimeSpan.Zero);
+
+                     if (deal.EndTime < deal.StartTime &&
+                         deal.EndTime <= nowNz.TimeOfDay) 
+                     {
+                         endDateTime = endDateTime.AddDays(1);
+                     }
+
+                     return endDateTime;
+                 }).ToList();
 
             return activeDeals;
         }
@@ -138,6 +193,105 @@ namespace IncidentMapAPI.Infrastructure.Persistence.Repositories
             return true;
         }
 
+        private int CalculateScore(Promotion place, DecisionRequestDTO request)
+        {
+            int score = 0;
+
+            if (request.Preference == "Deals")
+            {
+                if (place.Deals != null && place.Deals.Any())
+                {
+                    score += DEAL_SCORE;
+
+                    var distance = CalculateDistance(request.Latitude, request.Longitude, place.Latitude, place.Longitude);
+                    if (distance <= 2)
+                    {
+                        score += NEARBY_SCORE; //NEARBY_SCORE is 20 atm
+                    }
+                    else if (distance <= 5)
+                    {
+                        score += NEARBY_SCORE - 5;
+                    }
+                    else if (distance <= 10)
+                    {
+                        score += NEARBY_SCORE - 10;
+                    }
+                    else if (distance <= 20)
+                    {
+                        score += NEARBY_SCORE - 15;
+                    }else if(distance <= 30)
+                    {
+                        score += NEARBY_SCORE - 17;
+                    }
+                    else if (distance > 50)
+                    {
+                        score += NEARBY_SCORE - 19;
+                    }
+                }
+
+                
+            }
+            
+            if(request.Preference == "Aesthetic")
+            {
+                if(place.IsAnAestheticShop == true)
+                {
+                    score += AESTHETIC_SCORE;
+
+                    var distance = CalculateDistance(request.Latitude, request.Longitude, place.Latitude, place.Longitude);
+                    if (distance <= 2)
+                    {
+                        score += NEARBY_SCORE; //NEARBY_SCORE is 20 atm
+                    }
+                    else if (distance <= 5)
+                    {
+                        score += NEARBY_SCORE - 5;
+                    }
+                    else if (distance <= 10)
+                    {
+                        score += NEARBY_SCORE - 10;
+                    }
+                    else if (distance <= 20)
+                    {
+                        score += NEARBY_SCORE - 15;
+                    }
+                    else if (distance <= 30)
+                    {
+                        score += NEARBY_SCORE - 17;
+                    }
+                    else if (distance > 50)
+                    {
+                        score += NEARBY_SCORE - 19;
+                    }
+                }
+
+                if (place.IsAnAestheticShop == true && place.Deals.Any())
+                {
+                    score += DEAL_SCORE;
+                }
+            }
+
+            if(request.Preference == "Nearby")
+            {
+                var distance = CalculateDistance(request.Latitude, request.Longitude, place.Latitude, place.Longitude);
+
+                if(distance <= 2)
+                {
+                    score += NEARBY_SCORE; //NEARBY_SCORE is 20 atm
+                }
+                else if(distance <= 5)
+                {
+                    score += NEARBY_SCORE - 5;
+                }else if(distance <= 10)
+                {
+                    score += NEARBY_SCORE - 10;
+                }
+
+            }
+
+            return score;
+        }
+
         public double CalculateDistance(double lat1, double lon1, double lat2, double lon2)
         {
             double R = 6371; // km
@@ -165,5 +319,6 @@ namespace IncidentMapAPI.Infrastructure.Persistence.Repositories
             return currentTime >= d.StartTime ||
                    currentTime <= d.EndTime;
         }
+
     }
 }

@@ -43,6 +43,14 @@ namespace IncidentMapAPI.Controllers
             return Ok(new { message = "Successful Request", status = true, code = 200, data = activeDeals });
         }
 
+        [HttpPost("decide")]
+        public async Task<IActionResult> DecideForUser(DecisionRequestDTO decisionRequestDTO)
+        {
+            var result = await _promotion.GetDecisionPlace(decisionRequestDTO);
+
+            return Ok(result);
+        }
+
         //this is not only for location. idk why i put location there.
         [HttpPost("promotion-by-location")]
         public async Task<IActionResult> GetPromotionsByLocation(PromotionDTO promotion)
